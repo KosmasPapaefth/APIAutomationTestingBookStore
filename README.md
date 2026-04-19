@@ -4,6 +4,27 @@ API automation framework for the FakeRestAPI Online Bookstore service.
 
 This project demonstrates a clean Java API test automation design using Cucumber BDD, Rest Assured, JUnit 5, Jackson, Maven reporting, GitHub Actions, and Xray-ready Cucumber JSON output.
 
+## Quick Start
+
+Run the full automation suite:
+
+```bash
+mvn clean verify
+```
+
+After execution, reports are available under:
+
+- `target/cucumber-report.html`
+- `target/cucumber-report/`
+- `target/cucumber/cucumber.json`
+- `target/surefire-reports/`
+
+## Prerequisites
+
+- Java 17
+- Maven
+- Git, optional for cloning and version control
+
 ## Tech Stack
 
 - Java 17
@@ -17,6 +38,8 @@ This project demonstrates a clean Java API test automation design using Cucumber
 - Masterthought Cucumber Report
 - GitHub Actions CI
 - Xray-ready merged Cucumber JSON
+
+PicoContainer allows Cucumber step definition classes to share scenario-scoped objects, such as `TestContext`, without using static shared state. This improves test isolation and keeps the framework maintainable.
 
 ## API Under Test
 
@@ -65,7 +88,7 @@ src
 `-- api-tests.yml
 ```
 
-## Engineering Design
+## Design Principles
 
 The framework is intentionally practical and maintainable:
 
@@ -78,6 +101,15 @@ The framework is intentionally practical and maintainable:
 - Dynamic placeholders are resolved by one shared `DataTableMapper`.
 - Scenario state is stored in `TestContext`.
 - Reporting and Xray preparation are part of the Maven `verify` lifecycle.
+
+## Key Design Decisions
+
+- Thin step definitions keep Gherkin bindings readable and focused on orchestration.
+- A centralized API client avoids duplicated Rest Assured request-building logic.
+- DataTable-driven payloads keep test data visible in feature files.
+- Reusable assertion classes keep validation logic consistent across scenarios.
+- Scenario-scoped context avoids static shared state and supports cleaner multi-step flows.
+- CI/CD integration ensures the framework can run automatically and publish reports.
 
 ## Test Coverage
 
@@ -133,7 +165,7 @@ Cross-entity scenarios validate flows where `author.idBook` links to a book:
 
 Create and update scenarios use Cucumber DataTables for dynamic payload construction.
 
-Example:
+Book example:
 
 ```gherkin
 When User creates a book with the following data:
@@ -145,6 +177,16 @@ When User creates a book with the following data:
   | publishDate | NOW           |
 ```
 
+Author example:
+
+```gherkin
+When User creates an author with the following data:
+  | id        | AUTO_ID      |
+  | idBook    | AUTO_BOOK_ID |
+  | firstName | John         |
+  | lastName  | Doe          |
+```
+
 Supported placeholders:
 
 - `AUTO_ID`
@@ -154,6 +196,18 @@ Supported placeholders:
 - `NOW`
 - `EMPTY`
 - `NULL`
+
+## Tag Strategy
+
+Tags are used to organize execution scope, reporting, and future test management mapping:
+
+- `@smoke` marks critical high-value flows.
+- `@regression` marks broader functional coverage.
+- `@books` marks Books API scenarios.
+- `@authors` marks Authors API scenarios.
+- `@integration` marks cross-entity Books and Authors scenarios.
+- `@negative` marks edge, invalid, or demo-API limitation scenarios.
+- Stable tags such as `@BOOKS-API-001` support future Xray mapping.
 
 ## Configuration
 
@@ -231,7 +285,7 @@ Uploaded artifacts:
 - `target/cucumber-report`
 - `target/cucumber-report.html`
 
-## Xray Readiness
+## Xray Integration Preparation
 
 The project is prepared for Xray integration but does not publish results automatically.
 
@@ -252,9 +306,9 @@ Expected future CI secrets:
 - `XRAY_CLIENT_SECRET`
 - `XRAY_API_URL`
 
-## Demo API Behavior
+## Known FakeRestAPI Limitations
 
-FakeRestAPI is intentionally permissive and does not behave like a strict production API.
+FakeRestAPI is intentionally permissive and does not behave like a strict production API. The scenarios document the actual behavior of the public demo service; these behaviors are API limitations, not framework limitations.
 
 Observed behavior:
 
@@ -265,18 +319,18 @@ Observed behavior:
 - Created entities are echoed in responses but are not reliably persisted.
 - Delete operations often return `200`, even for non-existing ids.
 
-The negative scenarios document actual demo API behavior rather than ideal business validation rules.
+The negative scenarios capture the real behavior of the demo API rather than ideal business validation rules.
 
 ## Future Enhancements
 
 The framework is intentionally single-threaded for assessment clarity.
 
+Parallel execution is not implemented. The current scenario-scoped design provides a good foundation for future parallel execution, but it should only be enabled after validating scenario isolation, report generation, and CI stability.
+
 Potential future improvements:
 
-- Add parallel execution after validating scenario isolation and report merging.
 - Enable real Xray publishing through CI secrets.
-- Add contract/schema validation if the API contract becomes stable.
-- Add retry handling for transient public demo API outages.
+- Extend trace logging into a real Elastic/Kibana observability integration if required.
 
 ## Repository Hygiene
 
@@ -288,3 +342,7 @@ Generated files are excluded through `.gitignore`, including:
 - local logs
 
 This keeps the repository focused on source code, tests, configuration, CI/CD, and documentation.
+
+## Summary
+
+This framework focuses on maintainability, clean architecture, realistic API testing, CI/CD readiness, and future extensibility. It is intentionally simple where possible, structured where useful, and honest about the behavior and limitations of the public FakeRestAPI service.
