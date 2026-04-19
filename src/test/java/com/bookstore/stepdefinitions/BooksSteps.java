@@ -51,6 +51,11 @@ public class BooksSteps {
         testContext.setLastResponse(client.deleteBook(bookId));
     }
 
+    @When("User deletes a book using raw id value {string}")
+    public void userDeletesABookUsingRawIdValue(String rawId) {
+        testContext.setLastResponse(client.deleteBookByRawId(rawId));
+    }
+
     @When("User retrieves a non-existing book")
     public void userRetrievesANonExistingBook() {
         testContext.setLastResponse(client.getBookById(TestDataFactory.nextNonExistingBookId()));

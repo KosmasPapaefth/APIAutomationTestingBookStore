@@ -30,4 +30,14 @@ public class CommonStepDefinitions {
     public void theDeleteResponseShould(String expectation) {
         ApiAssertions.assertDeleteExpectation(testContext.getLastResponse(), expectation);
     }
+
+    @Then("the API error response should indicate {string}")
+    public void theApiErrorResponseShouldIndicate(String expectation) {
+        ApiAssertions.assertErrorResponseExpectation(testContext.getLastResponse(), expectation);
+    }
+
+    @Then("the API error response should be a validation failure with traceId")
+    public void theApiErrorResponseShouldBeAValidationFailureWithTraceId() {
+        ApiAssertions.assertValidationFailureWithTraceId(testContext.getLastResponse());
+    }
 }

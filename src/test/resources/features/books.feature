@@ -218,3 +218,15 @@ Feature: Books API coverage
     When User deletes the existing book with id 0
     Then the response status should be 200
     And the delete response should "successful deletion"
+
+  @books @negative @BOOKS-API-DELETE-VALIDATION-001
+  Scenario: Delete a book with an oversized id value
+    When User deletes a book using raw id value "3213123123123"
+    Then the response status should be 400
+    And the API error response should be a validation failure with traceId
+
+  @books @negative @BOOKS-API-DELETE-VALIDATION-002
+  Scenario: Delete a book with a non-numeric id value
+    When User deletes a book using raw id value "abc"
+    Then the response status should be 400
+    And the API error response should indicate "validation failure"

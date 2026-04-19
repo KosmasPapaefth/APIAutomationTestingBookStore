@@ -51,6 +51,11 @@ public class AuthorsSteps {
         testContext.setLastResponse(client.deleteAuthor(authorId));
     }
 
+    @When("User deletes an author using raw id value {string}")
+    public void userDeletesAnAuthorUsingRawIdValue(String rawId) {
+        testContext.setLastResponse(client.deleteAuthorByRawId(rawId));
+    }
+
     @When("User retrieves a non-existing author")
     public void userRetrievesANonExistingAuthor() {
         testContext.setLastResponse(client.getAuthorById(TestDataFactory.nextNonExistingAuthorId()));

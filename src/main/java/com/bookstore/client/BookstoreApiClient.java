@@ -34,6 +34,10 @@ public class BookstoreApiClient {
         return delete(BOOKS_PATH + "/" + id);
     }
 
+    public Response deleteBookByRawId(String rawId) {
+        return delete(BOOKS_PATH + "/" + rawId);
+    }
+
     public Response getAllAuthors() {
         return get(AUTHORS_PATH);
     }
@@ -52,6 +56,10 @@ public class BookstoreApiClient {
 
     public Response deleteAuthor(int id) {
         return delete(AUTHORS_PATH + "/" + id);
+    }
+
+    public Response deleteAuthorByRawId(String rawId) {
+        return delete(AUTHORS_PATH + "/" + rawId);
     }
 
     private RequestSpecification request() {

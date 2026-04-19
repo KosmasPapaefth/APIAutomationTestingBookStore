@@ -2,7 +2,11 @@ package com.bookstore.assertions;
 
 import io.restassured.response.Response;
 
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,6 +47,90 @@ public final class ApiAssertions {
     public static void assertEmptyBody(Response response, String message) {
         assertResponsePresent(response);
         assertTrue(response.asString().isBlank(), message);
+    }
+
+    /**
+     * Verifies the validation-style error payload returned by ASP.NET model binding failures.
+     *
+     * @param response response expected to contain a validation error body
+     */
+    public static void assertValidationFailure(Response response) {
+        assertResponsePresent(response);
+
+        String type = response.jsonPath().getString("type");
+        String title = response.jsonPath().getString("title");
+        Number status = response.jsonPath().get("status");
+        Object errors = response.jsonPath().get("errors");
+
+        assertAll(
+                () -> assertEquals(400, response.statusCode(), "Expected HTTP 400 for validation failure."),
+                () -> assertEquals(400, status == null ? null : status.intValue(), "Expected error payload status to be 400."),
+                () -> assertNotNull(type, "Expected error response to include 'type'."),
+                () -> assertFalse(type.isBlank(), "Expected error response 'type' to be non-empty."),
+                () -> assertNotNull(title, "Expected error response to include 'title'."),
+                () -> assertTrue(
+                        normalizeExpectation(title).contains("validation"),
+                        "Expected error title to describe a validation failure."
+                ),
+                () -> assertNotNull(errors, "Expected error response to include 'errors'."),
+                () -> assertTrue(errors instanceof Map<?, ?>, "Expected 'errors' to be a JSON object."),
+                () -> assertFalse(((Map<?, ?>) errors).isEmpty(), "Expected validation errors to be non-empty.")
+        );
+    }
+
+    /**
+     * Verifies that the error response contains a non-empty trace identifier.
+     *
+     * @param response response expected to contain a validation error body
+     */
+    public static void assertResponseContainsTraceId(Response response) {
+        assertResponsePresent(response);
+
+        String traceId = response.jsonPath().getString("traceId");
+        assertAll(
+                () -> assertNotNull(traceId, "Expected error response to include 'traceId'."),
+                () -> assertFalse(traceId.isBlank(), "Expected error response 'traceId' to be non-empty.")
+        );
+    }
+
+    /**
+     * Verifies the common validation error contract, including the trace identifier used for diagnostics.
+     *
+     * @param response response expected to contain a validation error body with trace metadata
+     */
+    public static void assertValidationFailureWithTraceId(Response response) {
+        assertValidationFailure(response);
+        assertResponseContainsTraceId(response);
+    }
+
+    /**
+     * Verifies that the error response contains a validation error entry for the requested field.
+     *
+     * @param response response expected to contain a validation error body
+     * @param key field name expected under the errors object
+     */
+    public static void assertResponseContainsErrorKey(Response response, String key) {
+        assertResponsePresent(response);
+
+        Object errorEntry = response.jsonPath().get("errors." + key);
+        assertNotNull(errorEntry, "Expected validation errors to include key: " + key);
+    }
+
+    /**
+     * Maps a human-readable error expectation to shared error validation logic.
+     *
+     * @param response response returned by the API
+     * @param expectation scenario expectation text from Gherkin
+     */
+    public static void assertErrorResponseExpectation(Response response, String expectation) {
+        String normalizedExpectation = normalizeExpectation(expectation);
+
+        switch (normalizedExpectation) {
+            case "validation failure",
+                 "validation error",
+                 "bad request validation failure" -> assertValidationFailure(response);
+            default -> throw new IllegalArgumentException("Unsupported API error expectation: " + expectation);
+        }
     }
 
     /**
