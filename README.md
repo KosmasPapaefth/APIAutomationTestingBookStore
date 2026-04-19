@@ -1,6 +1,6 @@
 # Online Bookstore API Automation Framework
 
-Assessment-ready API automation framework for the FakeRestAPI Online Bookstore service.
+API automation framework for the FakeRestAPI Online Bookstore service.
 
 This project demonstrates a clean Java API test automation design using Cucumber BDD, Rest Assured, JUnit 5, Jackson, Maven reporting, GitHub Actions, and Xray-ready Cucumber JSON output.
 
@@ -65,7 +65,7 @@ src
 `-- api-tests.yml
 ```
 
-## Senior QA Engineering Design
+## Engineering Design
 
 The framework is intentionally practical and maintainable:
 
