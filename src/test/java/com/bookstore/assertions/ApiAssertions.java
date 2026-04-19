@@ -50,9 +50,8 @@ public final class ApiAssertions {
      *
      * @param response response returned by the delete request
      * @param expectation scenario expectation text from Gherkin
-     * @param unsupportedMessage message prefix used when the expectation is not recognized
      */
-    public static void assertDeleteExpectation(Response response, String expectation, String unsupportedMessage) {
+    public static void assertDeleteExpectation(Response response, String expectation) {
         String normalizedExpectation = normalizeExpectation(expectation);
 
         switch (normalizedExpectation) {
@@ -63,7 +62,7 @@ public final class ApiAssertions {
                     response,
                     "Expected an empty response body for a successful delete."
             );
-            default -> throw new IllegalArgumentException(unsupportedMessage + expectation);
+            default -> throw new IllegalArgumentException("Unsupported delete expectation: " + expectation);
         }
     }
 

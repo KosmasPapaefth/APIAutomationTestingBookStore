@@ -55,20 +55,6 @@ public final class ConfigManager {
         return Boolean.parseBoolean(getRequired(key));
     }
 
-    /**
-     * Returns a configuration value as an integer.
-     *
-     * @param key property key to resolve
-     * @return parsed integer value
-     */
-    public static int getInt(String key) {
-        String value = getRequired(key);
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException exception) {
-            throw new IllegalStateException("Invalid integer configuration value for key: " + key, exception);
-        }
-    }
 
     /**
      * Resolves a configuration value from system properties, environment variables, or the loaded file.
@@ -110,6 +96,7 @@ public final class ConfigManager {
         requireProperty(properties, "default.content.type");
         requireProperty(properties, "default.accept");
         requireProperty(properties, "logging.enabled");
+        requireProperty(properties, "trace.logging.enabled");
         requireProperty(properties, "timeout.connection");
         requireProperty(properties, "timeout.socket");
         requireProperty(properties, "xray.enabled");

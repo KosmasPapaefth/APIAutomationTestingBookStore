@@ -1,10 +1,10 @@
 package com.bookstore.stepdefinitions;
 
 import com.bookstore.assertions.AuthorAssertions;
-import com.bookstore.client.AuthorsApiClient;
+import com.bookstore.client.BookstoreApiClient;
 import com.bookstore.context.TestContext;
 import com.bookstore.models.Author;
-import com.bookstore.utils.AuthorDataTableMapper;
+import com.bookstore.utils.DataTableMapper;
 import com.bookstore.utils.ScenarioContextKeys;
 import com.bookstore.utils.TestDataFactory;
 import io.cucumber.datatable.DataTable;
@@ -14,51 +14,51 @@ import io.cucumber.java.en.When;
 public class AuthorsSteps {
 
     private final TestContext testContext;
-    private final AuthorsApiClient authorsApiClient;
+    private final BookstoreApiClient client;
 
-    public AuthorsSteps(TestContext testContext, AuthorsApiClient authorsApiClient) {
+    public AuthorsSteps(TestContext testContext, BookstoreApiClient client) {
         this.testContext = testContext;
-        this.authorsApiClient = authorsApiClient;
+        this.client = client;
     }
 
     @When("User retrieves all authors")
     public void userRetrievesAllAuthors() {
-        testContext.setLastResponse(authorsApiClient.getAllAuthors());
+        testContext.setLastResponse(client.getAllAuthors());
     }
 
     @When("User retrieves the author with id {int}")
     public void userRetrievesTheAuthorWithId(int authorId) {
-        testContext.setLastResponse(authorsApiClient.getAuthorById(authorId));
+        testContext.setLastResponse(client.getAuthorById(authorId));
     }
 
     @When("User creates an author with the following data:")
     public void userCreatesAnAuthorWithTheFollowingData(DataTable dataTable) {
-        Author requestAuthor = AuthorDataTableMapper.fromDataTable(dataTable, testContext);
-        storeRequestAuthor(requestAuthor);
-        testContext.setLastResponse(authorsApiClient.createAuthor(requestAuthor));
+        Author requestAuthor = DataTableMapper.toAuthor(dataTable, testContext);
+        testContext.put(ScenarioContextKeys.REQUEST_AUTHOR, requestAuthor);
+        testContext.setLastResponse(client.createAuthor(requestAuthor));
         rememberCreatedAuthorId();
     }
 
     @When("User updates the author with id {int} using the following data:")
     public void userUpdatesTheAuthorWithIdUsingTheFollowingData(int authorId, DataTable dataTable) {
-        Author requestAuthor = AuthorDataTableMapper.fromDataTable(dataTable, testContext);
-        storeRequestAuthor(requestAuthor);
-        testContext.setLastResponse(authorsApiClient.updateAuthor(authorId, requestAuthor));
+        Author requestAuthor = DataTableMapper.toAuthor(dataTable, testContext);
+        testContext.put(ScenarioContextKeys.REQUEST_AUTHOR, requestAuthor);
+        testContext.setLastResponse(client.updateAuthor(authorId, requestAuthor));
     }
 
     @When("User deletes the author with id {int}")
     public void userDeletesTheAuthorWithId(int authorId) {
-        testContext.setLastResponse(authorsApiClient.deleteAuthor(authorId));
+        testContext.setLastResponse(client.deleteAuthor(authorId));
     }
 
     @When("User retrieves a non-existing author")
     public void userRetrievesANonExistingAuthor() {
-        testContext.setLastResponse(authorsApiClient.getAuthorById(TestDataFactory.nextNonExistingAuthorId()));
+        testContext.setLastResponse(client.getAuthorById(TestDataFactory.nextNonExistingAuthorId()));
     }
 
     @When("User deletes a non-existing author")
     public void userDeletesANonExistingAuthor() {
-        testContext.setLastResponse(authorsApiClient.deleteAuthor(TestDataFactory.nextNonExistingAuthorId()));
+        testContext.setLastResponse(client.deleteAuthor(TestDataFactory.nextNonExistingAuthorId()));
     }
 
     @Then("the response should contain a non-empty list of authors")
@@ -83,11 +83,7 @@ public class AuthorsSteps {
 
     @Then("the author response should have linked book id {int}")
     public void theAuthorResponseShouldHaveLinkedBookId(int expectedBookId) {
-        AuthorAssertions.assertAuthorBookId(testContext.getLastResponse().as(Author.class), expectedBookId);
-    }
-
-    private void storeRequestAuthor(Author requestAuthor) {
-        testContext.put(ScenarioContextKeys.REQUEST_AUTHOR, requestAuthor);
+        AuthorAssertions.assertAuthorBookId(testContext.getLastResponse(), expectedBookId);
     }
 
     private void rememberCreatedAuthorId() {

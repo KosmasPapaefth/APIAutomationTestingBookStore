@@ -69,13 +69,13 @@ src
 
 The framework is intentionally practical and maintainable:
 
-- API calls are centralized in dedicated client classes.
-- Rest Assured defaults are configured once in `BaseApiClient`.
+- API calls are centralized in one practical `BookstoreApiClient`.
+- Rest Assured defaults are configured once inside the client request builder.
 - Environment and endpoint configuration is centralized in `ConfigManager`.
 - Step definitions are thin and only orchestrate client calls, context storage, and assertions.
 - Assertions are centralized in `BookAssertions`, `AuthorAssertions`, and `ApiAssertions`.
 - Request payloads are DataTable-driven instead of hardcoded in step definitions.
-- Dynamic placeholders are resolved by reusable mapper/helper classes.
+- Dynamic placeholders are resolved by one shared `DataTableMapper`.
 - Scenario state is stored in `TestContext`.
 - Reporting and Xray preparation are part of the Maven `verify` lifecycle.
 

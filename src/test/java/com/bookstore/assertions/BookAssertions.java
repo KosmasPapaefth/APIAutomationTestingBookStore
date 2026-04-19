@@ -53,7 +53,7 @@ public final class BookAssertions {
      * @param expected request payload stored in the test context
      * @param actual mapped response payload
      */
-    public static void assertBookMatchesRequestPayload(Book expected, Book actual) {
+    private static void assertBookMatchesRequestPayload(Book expected, Book actual) {
         assertNotNull(expected, "Request payload was not stored in the test context.");
         assertNotNull(actual, "The API response did not contain a book payload.");
         assertBookMatches(expected, actual);
@@ -65,7 +65,7 @@ public final class BookAssertions {
      * @param actual mapped response payload
      * @param expectedTitle expected title value
      */
-    public static void assertBookTitle(Book actual, String expectedTitle) {
+    private static void assertBookTitle(Book actual, String expectedTitle) {
         assertNotNull(actual, "The API response did not contain a book payload.");
         assertEquals(expectedTitle, actual.getTitle());
     }
@@ -76,7 +76,7 @@ public final class BookAssertions {
      * @param actual mapped response payload
      * @param expectedPageCount expected page count value
      */
-    public static void assertBookPageCount(Book actual, int expectedPageCount) {
+    private static void assertBookPageCount(Book actual, int expectedPageCount) {
         assertNotNull(actual, "The API response did not contain a book payload.");
         assertEquals(expectedPageCount, actual.getPageCount());
     }

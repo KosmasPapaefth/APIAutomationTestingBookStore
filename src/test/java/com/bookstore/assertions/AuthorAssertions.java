@@ -53,7 +53,7 @@ public final class AuthorAssertions {
      * @param expected request payload stored in the test context
      * @param actual mapped response payload
      */
-    public static void assertAuthorMatchesRequestPayload(Author expected, Author actual) {
+    private static void assertAuthorMatchesRequestPayload(Author expected, Author actual) {
         assertNotNull(expected, "Request payload was not stored in the test context.");
         assertNotNull(actual, "The API response did not contain an author payload.");
         assertAuthorMatches(expected, actual);
@@ -81,7 +81,7 @@ public final class AuthorAssertions {
      * @param actual mapped response payload
      * @param expectedFirstName expected first name value
      */
-    public static void assertAuthorFirstName(Author actual, String expectedFirstName) {
+    private static void assertAuthorFirstName(Author actual, String expectedFirstName) {
         assertNotNull(actual, "The API response did not contain an author payload.");
         assertEquals(expectedFirstName, actual.getFirstName());
     }
@@ -92,7 +92,7 @@ public final class AuthorAssertions {
      * @param actual mapped response payload
      * @param expectedLastName expected last name value
      */
-    public static void assertAuthorLastName(Author actual, String expectedLastName) {
+    private static void assertAuthorLastName(Author actual, String expectedLastName) {
         assertNotNull(actual, "The API response did not contain an author payload.");
         assertEquals(expectedLastName, actual.getLastName());
     }
@@ -100,10 +100,14 @@ public final class AuthorAssertions {
     /**
      * Verifies the linked book id value of a mapped author payload.
      *
-     * @param actual mapped response payload
      * @param expectedIdBook expected linked book identifier
      */
-    public static void assertAuthorBookId(Author actual, Integer expectedIdBook) {
+    public static void assertAuthorBookId(Response response, int expectedIdBook) {
+        ApiAssertions.assertResponsePresent(response);
+        assertAuthorBookId(response.as(Author.class), expectedIdBook);
+    }
+
+    private static void assertAuthorBookId(Author actual, Integer expectedIdBook) {
         assertNotNull(actual, "The API response did not contain an author payload.");
         assertEquals(expectedIdBook, actual.getIdBook());
     }

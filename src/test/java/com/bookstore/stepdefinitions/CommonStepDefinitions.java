@@ -28,10 +28,6 @@ public class CommonStepDefinitions {
 
     @Then("the delete response should {string}")
     public void theDeleteResponseShould(String expectation) {
-        ApiAssertions.assertDeleteExpectation(
-                testContext.getLastResponse(),
-                expectation,
-                "Unsupported delete expectation: "
-        );
+        ApiAssertions.assertDeleteExpectation(testContext.getLastResponse(), expectation);
     }
 }

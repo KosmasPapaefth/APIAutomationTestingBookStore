@@ -1,10 +1,9 @@
 package com.bookstore.stepdefinitions;
 
-import com.bookstore.client.AuthorsApiClient;
-import com.bookstore.client.BooksApiClient;
+import com.bookstore.client.BookstoreApiClient;
 import com.bookstore.context.TestContext;
 import com.bookstore.models.Author;
-import com.bookstore.utils.AuthorDataTableMapper;
+import com.bookstore.utils.DataTableMapper;
 import com.bookstore.utils.ScenarioContextKeys;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.When;
@@ -15,31 +14,23 @@ import io.cucumber.java.en.When;
 public class IntegrationSteps {
 
     private final TestContext testContext;
-    private final BooksApiClient booksApiClient;
-    private final AuthorsApiClient authorsApiClient;
+    private final BookstoreApiClient client;
 
-    public IntegrationSteps(TestContext testContext, BooksApiClient booksApiClient, AuthorsApiClient authorsApiClient) {
+    public IntegrationSteps(TestContext testContext, BookstoreApiClient client) {
         this.testContext = testContext;
-        this.booksApiClient = booksApiClient;
-        this.authorsApiClient = authorsApiClient;
+        this.client = client;
     }
 
     @When("User retrieves the created book")
     public void userRetrievesTheCreatedBook() {
-        testContext.setLastResponse(
-                booksApiClient.getBookById(
-                        testContext.getRequiredInteger(ScenarioContextKeys.CREATED_BOOK_ID)
-                )
-        );
+        int bookId = testContext.getRequiredInteger(ScenarioContextKeys.CREATED_BOOK_ID);
+        testContext.setLastResponse(client.getBookById(bookId));
     }
 
     @When("User retrieves the created author")
     public void userRetrievesTheCreatedAuthor() {
-        testContext.setLastResponse(
-                authorsApiClient.getAuthorById(
-                        testContext.getRequiredInteger(ScenarioContextKeys.CREATED_AUTHOR_ID)
-                )
-        );
+        int authorId = testContext.getRequiredInteger(ScenarioContextKeys.CREATED_AUTHOR_ID);
+        testContext.setLastResponse(client.getAuthorById(authorId));
     }
 
     /**
@@ -49,31 +40,22 @@ public class IntegrationSteps {
      */
     @When("User updates the created author with the following data:")
     public void userUpdatesTheCreatedAuthorWithTheFollowingData(DataTable dataTable) {
-        Author requestAuthor = AuthorDataTableMapper.fromDataTable(dataTable, testContext);
+        Author requestAuthor = DataTableMapper.toAuthor(dataTable, testContext);
+        int authorId = testContext.getRequiredInteger(ScenarioContextKeys.CREATED_AUTHOR_ID);
+
         testContext.put(ScenarioContextKeys.REQUEST_AUTHOR, requestAuthor);
-        testContext.setLastResponse(
-                authorsApiClient.updateAuthor(
-                        testContext.getRequiredInteger(ScenarioContextKeys.CREATED_AUTHOR_ID),
-                        requestAuthor
-                )
-        );
+        testContext.setLastResponse(client.updateAuthor(authorId, requestAuthor));
     }
 
     @When("User deletes the created author")
     public void userDeletesTheCreatedAuthor() {
-        testContext.setLastResponse(
-                authorsApiClient.deleteAuthor(
-                        testContext.getRequiredInteger(ScenarioContextKeys.CREATED_AUTHOR_ID)
-                )
-        );
+        int authorId = testContext.getRequiredInteger(ScenarioContextKeys.CREATED_AUTHOR_ID);
+        testContext.setLastResponse(client.deleteAuthor(authorId));
     }
 
     @When("User deletes the created book")
     public void userDeletesTheCreatedBook() {
-        testContext.setLastResponse(
-                booksApiClient.deleteBook(
-                        testContext.getRequiredInteger(ScenarioContextKeys.CREATED_BOOK_ID)
-                )
-        );
+        int bookId = testContext.getRequiredInteger(ScenarioContextKeys.CREATED_BOOK_ID);
+        testContext.setLastResponse(client.deleteBook(bookId));
     }
 }
