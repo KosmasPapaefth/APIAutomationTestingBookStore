@@ -1,0 +1,84 @@
+name: Bookstore API Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: api-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api-tests:
+    name: Build, Test, and Publish Reports
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Temurin JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Run API automation suite
+        run: mvn --batch-mode --errors clean verify
+
+      - name: Upload Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload merged Cucumber JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-json
+          path: target/cucumber/cucumber.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Masterthought report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-report
+          path: target/cucumber-report
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Cucumber HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-html
+          path: target/cucumber-report.html
+          if-no-files-found: warn
+          retention-days: 14
+
+      # Future Xray upload placeholder.
+      # Expected secrets / variables:
+      # - XRAY_CLIENT_ID
+      # - XRAY_CLIENT_SECRET
+      # - XRAY_API_URL
+      # Upload-ready file:
+      # - target/cucumber/cucumber.json
+      - name: Publish results to Xray (placeholder)
+        if: false
+        env:
+          XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }}
+          XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
+          XRAY_API_URL: ${{ secrets.XRAY_API_URL }}
+          XRAY_RESULTS_FILE: target/cucumber/cucumber.json
+        run: |
+          echo "Future Xray upload step placeholder."
+          echo "API URL: ${XRAY_API_URL}"
+          echo "Results file: ${XRAY_RESULTS_FILE}"
